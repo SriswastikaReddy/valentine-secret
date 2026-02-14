@@ -202,10 +202,9 @@ st.markdown(
 # ----------------------------
 # Controls
 # ----------------------------
-with st.expander("⚙️ Options", expanded=False):
-    wait_seconds = st.slider("Wait before reveal (seconds)", 5, 60, 40, 5)
-    typing_speed = st.slider("Typing speed (lower = faster)", 0.005, 0.06, 0.02, 0.005)
-    enable_lock = st.toggle("🔐 Enable secret code lock", value=False)
+typing_speed = 0.02
+enable_lock = False
+wait_seconds = 10
 
 secret_ok = True
 if enable_lock:
