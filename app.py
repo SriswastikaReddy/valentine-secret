@@ -202,7 +202,7 @@ st.markdown(
 # ----------------------------
 # Controls
 # ----------------------------
-typing_speed = 0.02
+typing_speed = 0.05
 enable_lock = False
 wait_seconds = 10
 
