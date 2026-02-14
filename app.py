@@ -58,43 +58,55 @@ st.markdown(
       /* Center container max width */
       .block-container {
         max-width: 760px;
-        padding-top: 2.2rem;
-        padding-bottom: 2.2rem;
+        padding-top: 2.0rem;
+        padding-bottom: 2.0rem;
       }
 
       /* Card */
       .val-card {
-        background: rgba(255, 255, 255, 0.75);
-        border: 1px solid rgba(255, 105, 180, 0.25);
+        background: rgba(255, 255, 255, 0.78);
+        border: 1px solid rgba(255, 0, 85, 0.25);
         border-radius: 22px;
         padding: 18px 18px 12px 18px;
-        box-shadow: 0 10px 30px rgba(255, 20, 147, 0.12);
-        backdrop-filter: blur(6px);
+        box-shadow: 0 12px 34px rgba(255, 0, 85, 0.15);
+        backdrop-filter: blur(7px);
       }
-
       .val-title {
-        font-size: 2.0rem;
-        font-weight: 800;
+        font-size: 2.05rem;
+        font-weight: 900;
         margin: 0 0 6px 0;
+        color: #b3002d;
+        text-shadow: 0 0 10px rgba(255, 0, 85, 0.25);
       }
-
       .val-sub {
-        font-size: 1.0rem;
-        opacity: 0.85;
+        font-size: 1.05rem;
+        opacity: 0.9;
         margin: 0 0 12px 0;
       }
 
       /* Message bubbles */
       .bubble {
         border-radius: 18px;
-        padding: 12px 14px;
-        margin: 10px 0;
-        font-size: 1.1rem;
-        line-height: 1.5;
+        padding: 14px 14px;
+        margin: 12px 0;
+        font-size: 1.15rem;
+        line-height: 1.55;
         border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 8px 22px rgba(0,0,0,0.06);
       }
       .bubble-a { background: rgba(255,255,255,0.95); }
-      .bubble-b { background: rgba(255, 240, 246, 0.95); }
+      .bubble-b { background: rgba(255, 240, 246, 0.96); }
+
+      /* Glowing red message text */
+      .glowText {
+        color:#ff0033;
+        font-weight:900;
+        text-shadow:
+          0 0 4px rgba(255, 0, 51, 0.65),
+          0 0 10px rgba(255, 0, 85, 0.70),
+          0 0 18px rgba(255, 77, 109, 0.65),
+          0 0 34px rgba(255, 0, 85, 0.60);
+      }
 
       /* Hearts animation */
       .hearts {
@@ -110,19 +122,50 @@ st.markdown(
         font-size: 18px;
         opacity: 0.0;
         animation: floatUp 8s linear infinite;
+        filter: drop-shadow(0 0 8px rgba(255,0,85,0.35));
       }
       @keyframes floatUp {
         0%   { transform: translateY(20px) scale(0.9); opacity: 0.0; }
-        10%  { opacity: 0.6; }
-        50%  { opacity: 0.9; }
-        100% { transform: translateY(-110vh) scale(1.3); opacity: 0.0; }
+        10%  { opacity: 0.65; }
+        50%  { opacity: 0.95; }
+        100% { transform: translateY(-110vh) scale(1.35); opacity: 0.0; }
       }
 
-      /* Improve button look slightly */
+      /* Bouquet animation */
+      .bouquet {
+        position: fixed;
+        bottom: 12px;
+        right: 18px;
+        font-size: 74px;
+        animation: floatBouquet 4s ease-in-out infinite alternate;
+        z-index: 1;
+        filter: drop-shadow(0 10px 22px rgba(255,0,85,0.20));
+      }
+      @keyframes floatBouquet {
+        0% { transform: translateY(0px) rotate(-6deg); }
+        100% { transform: translateY(-22px) rotate(6deg); }
+      }
+
+      /* Extra flowers floating near bottom-left */
+      .flowers {
+        position: fixed;
+        bottom: 12px;
+        left: 16px;
+        font-size: 44px;
+        animation: floatFlowers 3.2s ease-in-out infinite alternate;
+        z-index: 1;
+        filter: drop-shadow(0 10px 20px rgba(255,0,85,0.15));
+      }
+      @keyframes floatFlowers {
+        0% { transform: translateY(0px); opacity: 0.95; }
+        100% { transform: translateY(-16px); opacity: 1.0; }
+      }
+
+      /* Buttons */
       div.stButton > button {
         border-radius: 14px;
-        padding: 0.65rem 1.1rem;
-        font-weight: 700;
+        padding: 0.7rem 1.1rem;
+        font-weight: 800;
       }
     </style>
 
@@ -139,6 +182,9 @@ st.markdown(
       <div class="heart" style="left: 65%; font-size: 24px; animation-delay: 4.2s;">💗</div>
       <div class="heart" style="left: 90%; font-size: 20px; animation-delay: 4.8s;">💖</div>
     </div>
+
+    <div class="bouquet">💐</div>
+    <div class="flowers">🌹🌸</div>
     """,
     unsafe_allow_html=True
 )
@@ -163,14 +209,13 @@ with st.expander("⚙️ Options", expanded=False):
 
 secret_ok = True
 if enable_lock:
-    # Set your secret code here:
     SECRET_CODE = "love"
     code = st.text_input("Enter secret code", type="password", placeholder="Type the secret code…")
     secret_ok = (code == SECRET_CODE)
     st.caption("Tip: change SECRET_CODE inside app.py to whatever you want.")
 
 # ----------------------------
-# Typing effect in Streamlit
+# Typing effect (glowing red)
 # ----------------------------
 def type_bubble(text, kind="a"):
     box = st.empty()
@@ -178,7 +223,11 @@ def type_bubble(text, kind="a"):
     for ch in text:
         out += ch
         box.markdown(
-            f"<div class='bubble bubble-{kind}'>{out}</div>",
+            f"""
+            <div class='bubble bubble-{kind}'>
+                <span class="glowText">{out}</span>
+            </div>
+            """,
             unsafe_allow_html=True
         )
         time.sleep(typing_speed)
@@ -225,3 +274,4 @@ if start:
     # Step 5 (Final English)
     type_bubble(u_to_s(final_unicode), kind="a")
     st.balloons()
+
