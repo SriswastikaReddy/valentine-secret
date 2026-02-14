@@ -43,6 +43,13 @@ final_unicode = [
 ]
 
 # ----------------------------
+# Fixed settings (no UI options)
+# ----------------------------
+wait_seconds = 10
+typing_speed = 0.05
+enable_lock = False  # keep false (no password UI)
+
+# ----------------------------
 # Page config + Romantic styling
 # ----------------------------
 st.set_page_config(page_title="Secret Valentine 💌", page_icon="💌", layout="centered")
@@ -84,8 +91,10 @@ st.markdown(
         margin: 0 0 12px 0;
       }
 
-      /* Message bubbles */
+      /* Message bubbles (make sure messages are above decorations) */
       .bubble {
+        position: relative;
+        z-index: 5;
         border-radius: 18px;
         padding: 14px 14px;
         margin: 12px 0;
@@ -102,10 +111,10 @@ st.markdown(
         color:#ff0033;
         font-weight:900;
         text-shadow:
-          0 0 4px rgba(255, 0, 51, 0.65),
-          0 0 10px rgba(255, 0, 85, 0.70),
-          0 0 18px rgba(255, 77, 109, 0.65),
-          0 0 34px rgba(255, 0, 85, 0.60);
+          0 0 4px rgba(255, 0, 51, 0.70),
+          0 0 10px rgba(255, 0, 85, 0.75),
+          0 0 18px rgba(255, 77, 109, 0.70),
+          0 0 34px rgba(255, 0, 85, 0.62);
       }
 
       /* Hearts animation */
@@ -131,34 +140,51 @@ st.markdown(
         100% { transform: translateY(-110vh) scale(1.35); opacity: 0.0; }
       }
 
-      /* Bouquet animation */
+      /* Top decorations (won't cover text) */
       .bouquet {
         position: fixed;
-        bottom: 12px;
-        right: 18px;
-        font-size: 74px;
+        top: 10px;
+        right: 16px;
+        font-size: 56px;
         animation: floatBouquet 4s ease-in-out infinite alternate;
         z-index: 1;
-        filter: drop-shadow(0 10px 22px rgba(255,0,85,0.20));
+        pointer-events: none;
+        filter: drop-shadow(0 10px 22px rgba(255,0,85,0.18));
       }
       @keyframes floatBouquet {
         0% { transform: translateY(0px) rotate(-6deg); }
-        100% { transform: translateY(-22px) rotate(6deg); }
+        100% { transform: translateY(16px) rotate(6deg); }
       }
 
-      /* Extra flowers floating near bottom-left */
       .flowers {
         position: fixed;
-        bottom: 12px;
+        top: 12px;
         left: 16px;
-        font-size: 44px;
+        font-size: 38px;
         animation: floatFlowers 3.2s ease-in-out infinite alternate;
         z-index: 1;
-        filter: drop-shadow(0 10px 20px rgba(255,0,85,0.15));
+        pointer-events: none;
+        filter: drop-shadow(0 10px 20px rgba(255,0,85,0.14));
       }
       @keyframes floatFlowers {
         0% { transform: translateY(0px); opacity: 0.95; }
-        100% { transform: translateY(-16px); opacity: 1.0; }
+        100% { transform: translateY(12px); opacity: 1.0; }
+      }
+
+      /* Small balloon animation (subtle) */
+      .small-balloon {
+        position: fixed;
+        bottom: -60px;
+        font-size: 26px;
+        animation: riseBalloon 7s linear infinite;
+        z-index: 0;
+        opacity: 0.55;
+        pointer-events: none;
+        filter: drop-shadow(0 6px 14px rgba(255,0,85,0.12));
+      }
+      @keyframes riseBalloon {
+        0%   { transform: translateY(0); opacity: 0.55; }
+        100% { transform: translateY(-120vh); opacity: 0.0; }
       }
 
       /* Buttons */
@@ -185,6 +211,13 @@ st.markdown(
 
     <div class="bouquet">💐</div>
     <div class="flowers">🌹🌸</div>
+
+    <!-- subtle small balloons -->
+    <div class="small-balloon" style="left:15%; animation-delay:0s;">🎈</div>
+    <div class="small-balloon" style="left:35%; animation-delay:1.2s;">🎈</div>
+    <div class="small-balloon" style="left:55%; animation-delay:2.4s;">🎈</div>
+    <div class="small-balloon" style="left:75%; animation-delay:3.6s;">🎈</div>
+    <div class="small-balloon" style="left:90%; animation-delay:4.4s;">🎈</div>
     """,
     unsafe_allow_html=True
 )
@@ -198,20 +231,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
-# ----------------------------
-# Controls
-# ----------------------------
-typing_speed = 0.05
-enable_lock = False
-wait_seconds = 10
-
-secret_ok = True
-if enable_lock:
-    SECRET_CODE = "love"
-    code = st.text_input("Enter secret code", type="password", placeholder="Type the secret code…")
-    secret_ok = (code == SECRET_CODE)
-    st.caption("Tip: change SECRET_CODE inside app.py to whatever you want.")
 
 # ----------------------------
 # Typing effect (glowing red)
@@ -232,7 +251,7 @@ def type_bubble(text, kind="a"):
         time.sleep(typing_speed)
 
 # ----------------------------
-# Run button
+# Run buttons
 # ----------------------------
 col1, col2 = st.columns([1, 1])
 start = col1.button("▶️ Start 💕", use_container_width=True)
@@ -242,10 +261,6 @@ if reset:
     st.rerun()
 
 if start:
-    if enable_lock and not secret_ok:
-        st.error("Wrong secret code. Try again 💗")
-        st.stop()
-
     # Step 1
     type_bubble(u_to_s(intro_unicode), kind="a")
     time.sleep(1.0)
@@ -257,7 +272,7 @@ if start:
     # Step 3 (Decode prompt)
     type_bubble(u_to_s(decode_unicode), kind="a")
 
-    # Countdown (single updating box)
+    # Countdown (fixed 10 seconds)
     countdown = st.empty()
     for r in range(wait_seconds, 0, -1):
         countdown.info(f"⏳ {r} seconds remaining…")
@@ -272,5 +287,3 @@ if start:
 
     # Step 5 (Final English)
     type_bubble(u_to_s(final_unicode), kind="a")
-    st.balloons()
-
